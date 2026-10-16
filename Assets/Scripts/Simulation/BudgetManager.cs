@@ -1,4 +1,6 @@
-﻿namespace GestionInteligente.Simulation
+﻿using System;
+
+namespace GestionInteligente.Simulation
 {
     public class BudgetManager
     {
@@ -10,6 +12,9 @@
 
         public void Inicializar(double presupuestoInicial)
         {
+            if (double.IsNaN(presupuestoInicial) || double.IsInfinity(presupuestoInicial) || presupuestoInicial < 0)
+                throw new ArgumentOutOfRangeException(nameof(presupuestoInicial), "El presupuesto debe ser un valor finito no negativo.");
+
             _presupuestoInicial = presupuestoInicial;
             PresupuestoDisponible = presupuestoInicial;
             CostoTotal = 0;
@@ -18,7 +23,8 @@
 
         public bool DescontarCosto(double monto)
         {
-            if (monto > PresupuestoDisponible) return false;
+            if (double.IsNaN(monto) || double.IsInfinity(monto) || monto < 0 || monto > PresupuestoDisponible)
+                return false;
 
             PresupuestoDisponible -= monto;
             CostoTotal += monto;

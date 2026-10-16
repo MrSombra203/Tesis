@@ -18,24 +18,34 @@ namespace GestionInteligente.Simulation
         public SimulationManager(BudgetManager budget, RouteManager routes, CustomsEventManager customs,
             EventoDinamicoGenerator eventos, PartidaRepository partidaRepo)
         {
-            _budget = budget;
-            _routes = routes;
-            _customs = customs;
-            _eventos = eventos;
-            _partidaRepo = partidaRepo;
+            _budget = budget ?? throw new ArgumentNullException(nameof(budget));
+            _routes = routes ?? throw new ArgumentNullException(nameof(routes));
+            _customs = customs ?? throw new ArgumentNullException(nameof(customs));
+            _eventos = eventos ?? throw new ArgumentNullException(nameof(eventos));
+            _partidaRepo = partidaRepo ?? throw new ArgumentNullException(nameof(partidaRepo));
         }
 
         public void Inicializar(PartidaLocal partida, double presupuestoInicial)
         {
+            if (partida == null) throw new ArgumentNullException(nameof(partida));
+            if (string.IsNullOrWhiteSpace(partida.Id))
+                throw new ArgumentException("La partida debe tener un identificador válido.", nameof(partida));
+
+            _budget.Inicializar(presupuestoInicial);
             _partidaActual = partida;
             _turnoActual = 0;
-            _budget.Inicializar(presupuestoInicial);
         }
 
         public DecisionLocal ProcesarTurno(VehiculoLocal vehiculo, RutaLocal ruta, RecursoLocal recurso,
             double cantidad, double horasEstimadas, out string motivoRechazo)
         {
             motivoRechazo = null;
+            if (_partidaActual == null)
+            {
+                motivoRechazo = "La simulación no se ha inicializado.";
+                return null;
+            }
+
             var turnoSiguiente = _turnoActual + 1;
 
             var demandaTotal = cantidad;
